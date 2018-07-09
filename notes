@@ -1,0 +1,351 @@
+Ipython : 
+The %debug, memory profiler, line profiler, magic commands
+
+Numpy:
+np.arange()
+np.array()
+np.reshape()
+grid[np.newaxis(),:]
+concatenation: np.concatenate, np.vstack, and np.hstack. np.concatenate
+splitting: np.split, np.hsplit, and np.vsplit
+
+###Ufuncs to deal with slugginess:
+
+for i in range(1,10):
+	L2 = 1/L[i]
+this loop is slow in python be it even the numpy array so we use specialized functions called ufuncs to get arround it. 
+
+L1 = np.arange(1,10)
+L2=1/L1 
+// also L2 = np.divide(1,L1)
+
+##aggregation min max
+np.sum()
+np.std()
+np.min() or array.min()
+
+import pandas as pd
+data = pd.read_csv('data/president_heights.csv')
+heights = np.array(data['height(cm)'])
+print("Mean height:       ", heights.mean())
+print("Standard deviation:", heights.std())
+print("Minimum height:    ", heights.min())
+print("Maximum height:    ", heights.max())
+
+import matplotlib.pyplot as plt
+import seaborn; seaborn.set()
+plt.hist(heights)
+plt.title('Height Distribution of US Presidents')
+plt.xlabel('height (cm)')
+plt.ylabel('number');
+plt.show()
+
+#Broadcasting functionality:
+np.arange(3)+5 means ([1,2,3]) will be added to ([5,5,5]) this is called broadcasting
+
+#Comparision operators as Ufuncs:
+
+x>3 returns bool array for the condition.
+these are used to mask or unmask the arrays
+
+np.sum((inches > 0.5) & (inches < 1))
+
+x < 5
+x[x < 5] will mask the array into the ones with the values satisfying the condition.
+
+
+#Fancy indexing:
+x = rand.randint(100, size=10)
+ind = np.array([[3, 7],[4, 5]])
+x[ind]
+out: array([[71, 86],[60, 20]])
+
+multi dimentional array: array([[ 0,  1,  2,  3],[ 4,  5,  6,  7],[ 8,  9, 10, 11]])
+
+row = np.array([0, 1, 2])
+col = np.array([2, 1, 3])
+X[row, col]***
+
+out: array([ 2,  5, 11])
+
+for this condition however:
+X[row[:, np.newaxis], col]
+first row and column will broadcast and then we decide the values of the array thus formed.
+out: 
+array([[ 2,  1,  3],
+       [ 6,  5,  7],
+       [10,  9, 11]]
+
+Based on 	   X[row,column]
+combined indexing: X[2, [2, 0, 1]] ---> after broadcasting=X[[2,2,2],[2,0,1]]
+		   X[1:, [2, 0, 1]]---> after first row for all, every row's 3rd value, 1st value, 			   second value
+		   X[row[:,np.newaxis()],[True,False,True,False]]--->X[[0,1,2](new axis),[True...]] i.e 	        [0,0,0,0 only the columns where there is Ture i.e out: [[0,2],[4,6],[8,10]] 
+		1,1,1,1
+		2,2,2,2]
+
+
+sorting****
+
+##Structured numpy data
+
+name = ['Alice', 'Bob', 'Cathy', 'Doug']
+age = [25, 45, 37, 19]
+weight = [55.0, 85.5, 68.0, 61.5]
+data = np.zeros(4, dtype={'names':('name', 'age', 'weight'),
+                          'formats':('U10', 'i4', 'f8')})
+data['name'] = name
+data['age'] = age
+data['weight'] = weight
+print(data)
+out: [('Alice', 25, 55.0) ('Bob', 45, 85.5) ('Cathy', 37, 68.0)
+ ('Doug', 19, 61.5)]
+
+different ways of making sturctured datatypes
+
+
+#### Pandas:
+the Series wraps both a sequence of values and a sequence of indices, which we can access with the values and index attributes. The values are simply a familiar NumPy array:
+
+data = pd.Series([0.25, 0.5, 0.75, 1.0])
+out:
+0    0.25
+1    0.50
+2    0.75
+3    1.00 
+
+data.values
+data.index
+
+data = pd.Series([0.25, 0.5, 0.75, 1.0],
+                 index=['a', 'b', 'c', 'd'])
+
+** series as specialized dict.
+
+population_dict = {'California': 38332521,
+                   'Texas': 26448193,
+                   'New York': 19651127,
+                   'Florida': 19552860,
+                   'Illinois': 12882135}
+population = pd.Series(population_dict)
+
+
+#dataframe obj:
+If a Series is an analog of a one-dimensional array with flexible indices, a DataFrame is an analog of a two-dimensional array with both flexible row indices and flexible column names.Just as you might think of a two-dimensional array as an ordered sequence of aligned one-dimensional columns, you can think of a DataFrame as a sequence of aligned Series objects. Here, by "aligned" we mean that they share the same index.
+
+area_dict = {'California': 423967, 'Texas': 695662, 'New York': 141297,
+             'Florida': 170312, 'Illinois': 149995}
+area = pd.Series(area_dict)
+
+states = pd.DataFrame({'population': population,
+                       'area': area})
+out:
+		area 	population
+California 	423967 	38332521
+Florida 	170312 	19552860
+Illinois 	149995 	12882135
+New York 	141297 	19651127
+Texas 		695662 	26448193
+
+
+states.index
+states.columns---> gives names of columns
+
+states['area']
+out:
+California    423967
+Florida       170312
+Illinois      149995
+New York      141297
+Texas         695662
+
+#constructing dataframes:
+pd.DataFrame(population, columns=['population']) ---> using single series
+
+data = [{'a': i, 'b': 2 * i}
+        for i in range(3)]
+pd.DataFrame(data)
+
+pd.DataFrame([{'a': 1, 'b': 2}, {'b': 3, 'c': 4}])
+out:
+a 	b 	c
+0 	1.0 	2 	NaN
+1 	NaN 	3 	4.0
+
+pd.DataFrame(np.random.rand(3, 2),
+             columns=['foo', 'bar'],
+             index=['a', 'b', 'c'])
+
+from 2d np array
+
+#pandas index obj:
+Series and DataFrame objects contain an explicit index that lets you reference and modify data. This Index object is an interesting structure in itself, and it can be thought of either as an immutable array or as an ordered set (technically a multi-set, as Index objects may contain repeated values).
+
+is immutable 
+
+ind = pd.Index([2, 3, 5, 7, 11])
+
+indA & indB intersection
+indA | indB union
+indA ^ indB symmetric difference
+
+# data selection and indexing
+
+data['b']
+'a' in data --> references to index
+data.keys()
+list(data.items())
+
+data['e'] = 1.25---> extending the series
+data['a':'c']
+data[(data > 0.3) & (data < 0.8)] ---> references "data"
+
+data[['a', 'e']] ---> fancy indexing just the ones with index a and e
+
+data = pd.Series(['a', 'b', 'c'], index=[1, 3, 5])
+out:
+1    a
+3    b
+5    c
+
+data[1]
+data[1:3]
+out:
+3 a
+5 c
+
+for this we use data.loc[1:3] ----> explicit indexing
+1 a
+3 b
+
+data.iloc[1:3] ---> python slicing style implicit indexing
+3 b
+5 c
+
+#data selection in dataframe
+
+area = pd.Series({'California': 423967, 'Texas': 695662,
+                  'New York': 141297, 'Florida': 170312,
+                  'Illinois': 149995})
+pop = pd.Series({'California': 38332521, 'Texas': 26448193,
+                 'New York': 19651127, 'Florida': 19552860,
+                 'Illinois': 12882135})
+data = pd.DataFrame({'area':area, 'pop':pop})
+
+out:
+		area 	pop
+California 	423967 	38332521
+Florida 	170312 	19552860
+Illinois 	149995 	12882135
+New York 	141297 	19651127
+Texas 		695662 	26448193
+
+data['area']
+data.area
+
+data['density'] = data['pop'] / data['area']
+
+ 		area 	pop 	density
+California 	423967 	38332521 	90.413926
+Florida 	170312 	19552860 	114.806121
+Illinois 	149995 	12882135 	85.883763
+New York 	141297 	19651127 	139.076746
+Texas 		695662 	26448193 	38.018740
+
+we can also view the DataFrame as an enhanced two-dimensional array. We can examine the raw underlying data array using the values attribute:
+
+data.values
+array([[  4.23967000e+05,   3.83325210e+07,   9.04139261e+01],
+       [  1.70312000e+05,   1.95528600e+07,   1.14806121e+02],
+       [  1.49995000e+05,   1.28821350e+07,   8.58837628e+01],
+       [  1.41297000e+05,   1.96511270e+07,   1.39076746e+02],
+       [  6.95662000e+05,   2.64481930e+07,   3.80187404e+01]])
+
+data.iloc[:3, :2]
+out:
+		area 	pop
+California 	423967 	38332521
+Florida 	170312 	19552860
+Illinois 	149995 	12882135
+
+
+The ix indexer allows a hybrid of iloc and loc
+
+data.ix[:3, :'pop']:
+out:
+		area 	pop
+California 	423967 	38332521
+Florida 	170312 	19552860
+Illinois 	149995 	12882135
+
+Any of the familiar NumPy-style data access patterns can be used within these indexers. For example, in the loc indexer we can combine masking and fancy indexing as in the following:
+
+data.loc[data.density > 100, ['pop', 'density']]
+out:
+		pop 	density
+Florida 	19552860 	114.806121
+New York 	19651127 	139.076746
+
+
+data.iloc[0, 2] = 90
+data
+out:
+		area 	pop 	density
+California 	423967 	38332521 	90.000000
+Florida 	170312 	19552860 	114.806121
+Illinois 	149995 	12882135 	85.883763
+New York 	141297 	19651127 	139.076746
+Texas 		695662 	26448193 	38.018740
+
+data['Florida':'Illinois']
+out:
+		area	pop		density
+Florida 	170312 	19552860 	114.806121
+Illinois 	149995 	12882135 	85.883763
+
+data[data.density > 100]
+
+#operations on data with pandas
+rng = np.random.RandomState(42)
+ser = pd.Series(rng.randint(0, 10, 4))
+
+df = pd.DataFrame(rng.randint(0, 10, (3, 4)),
+                  columns=['A', 'B', 'C', 'D'])
+
+np.exp(ser)
+np.sin(df * np.pi / 4)
+
+
+area = pd.Series({'Alaska': 1723337, 'Texas': 695662,
+                  'California': 423967}, name='area')
+population = pd.Series({'California': 38332521, 'Texas': 26448193,
+                        'New York': 19651127}, name='population')
+
+population / area ---> ufuncs
+area.index | population.index ---> union
+A = pd.Series([2, 4, 6], index=[0, 1, 2])
+B = pd.Series([1, 3, 5], index=[1, 2, 3])
+A + B
+out:
+0    NaN
+1    5.0
+2    9.0
+3    NaN
+
+A.add(B,fill_value=0)
+out:
+0    2.0
+1    5.0
+2    9.0
+3    5.0
+
+A = pd.DataFrame(rng.randint(0, 20, (2, 2)),
+                 columns=list('AB'))
+
+B = pd.DataFrame(rng.randint(0, 10, (3, 3)),
+                 columns=list('BAC'))
+A + B
+
+
+df = pd.DataFrame(A, columns=list('QRST'))
+df - df.iloc[0]
+out

@@ -1,0 +1,147 @@
+####pandas continued...
+
+#dealing with null values
+1.filling null values 
+2.methods to isnull, notnull, dropna(axis='colums or rows') fillna(method='bfill or ffill',axis=0 0r 1)-->backward or froward fill.
+3.nan and None are are nan
+
+#Hirarchial indexing
+1. Normal multiindexing
+2. Multiindexing with 
+
+index = pd.MultiIndex.from_tuples(index)
+pop = pop.reindex(index)
+
+pop_df = pop.unstack() ---> multiindex as extradimention
+
+different ways of making the multiindexes
+
+naming indexes
+pd.MultiIndex.from_arrays([['a', 'a', 'b', 'b'], [1, 2, 1, 2]])
+pd.MultiIndex.from_tuples([('a', 1), ('a', 2), ('b', 1), ('b', 2)])
+pd.MultiIndex.from_product([['a', 'b'], [1, 2]])
+pd.MultiIndex(levels=[['a', 'b'], [1, 2]],
+              labels=[[0, 0, 1, 1], [0, 1, 0, 1]])
+
+normal slicing
+loc slicing
+iloc slicing
+idx slicing
+
+
+data_mean = health_data.mean(level='year')
+index resetting
+
+pd.Panel
+pd.Panel4D 
+these are 3d and 4d generalization series--> being 1d and dataframe--> being 2d
+
+## Concat and Append
+
+np.concatenate()
+pd.concat()
+
+pd.concat([df1, df2])
+pd.concat([df3, df4], axis='col')
+pd.concat([x, y], ignore_index=True)
+pd.concat([x, y], keys=['x', 'y'])
+pd.concat([df5, df6], join='inner')
+pd.concat([df5, df6], join_axes=[df5.columns])
+
+#append
+df1.append(df2)
+
+## Merge and Join
+
+df3 = pd.merge(df1, df2)
+one to one , many to one , many to many
+
+pd.merge(df1, df2, on='employee')
+pd.merge(df1, df3, left_on="employee", right_on="name")
+pd.merge(df1, df3, left_on="employee", right_on="name").drop('name', axis=1)
+pd.merge(df1a, df2a, left_index=True, right_index=True)
+ join() method, which performs a merge that defaults to joining on indices
+
+merge by default is inner join ---> picks only the ones in the intersection
+
+pd.merge(df6, df7)
+pd.merge(df6, df7, how='inner')
+pd.merge(df6, df7, how='outer') will join all filling the NaN values where the data is unavailable
+pd.merge(df6, df7, how='left') according to left ie the left ones are all there
+pd.merge(df8, df9, on="name") ---> overlapping column names
+pd.merge(df8, df9, on="name", suffixes=["_L", "_R"]) ---> adding suffixes to it
+eval() and query()
+
+
+##aggregations and grouping
+
+ser.mean()
+df.mean()
+planets.describe()
+
+#GroupBy--> split apply combine
+df.groupby('key').sum()---> last part is aggregation which is required. Without which groupby does nothing but gives a new view
+
+df.groupby('key').aggregate(['min', np.median, max])
+
+df.groupby('key').filter(filter_func)
+def filter_func(x):
+    return x['data2'].std() > 4
+
+
+df2.groupby(str.lower).mean()
+
+df2 = df.set_index('key')
+mapping = {'A': 'vowel', 'B': 'consonant', 'C': 'consonant'}
+display('df2', 'df2.groupby(mapping).sum()')
+
+## Pivot
+titanic.groupby(['sex', 'class'])['survived'].aggregate('mean').unstack()
+
+for more readable groupby
+
+titanic.pivot_table('survived', index='sex', columns='class')
+
+age = pd.cut(titanic['age'], [0, 18, 80]) --> to make the bins according to ages
+titanic.pivot_table('survived', ['sex', age], 'class')  ---> multilevel pivot tables
+
+work with birth data
+
+
+
+## working with strings
+
+data = ['peter', 'Paul', 'MARY', 'gUIDO']
+[s.capitalize() for s in data]
+
+names = pd.Series(data)
+names.str.capitalize()
+
+
+#### Matplotlib
+
+plt.subplot(2, 1, 1) # (rows, columns, panel number)
+plt.plot(x, np.sin(x))
+
+# create the second panel and set current axis
+plt.subplot(2, 1, 2)
+plt.plot(x, np.cos(x));
+
+
+*object oriented approach
+fig, ax = plt.subplots(2)
+
+# Call plot() method on the appropriate object
+ax[0].plot(x, np.sin(x))
+ax[1].plot(x, np.cos(x));
+
+
+fig = plt.figure()
+ax = plt.axes()
+
+x = np.linspace(0, 10, 1000)
+ax.plot(x, np.sin(x));
+
+
+plt.plot(x, np.sin(x))
+plt.axis([-1, 11, -1.5, 1.5]);
